@@ -2,24 +2,27 @@ package com.xuyifan.communityback.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+
 import com.xuyifan.communityback.common.exception.ApiAsserts;
 import com.xuyifan.communityback.jwt.JwtUtil;
-import com.xuyifan.communityback.mapper.BmsBillbaordMapper;
 import com.xuyifan.communityback.mapper.UmsUserMapper;
 import com.xuyifan.communityback.model.dto.LoginData;
 import com.xuyifan.communityback.model.dto.RegisterData;
-import com.xuyifan.communityback.model.entity.BmsBillboard;
 import com.xuyifan.communityback.model.entity.UmsUser;
-import com.xuyifan.communityback.service.IBmsBillboardService;
 import com.xuyifan.communityback.service.IUmsUserService;
 import com.xuyifan.communityback.utils.MD5Utils;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
-
 import java.util.Date;
 
 @Service
-public class IUmsRegisterServiceImpl extends ServiceImpl<UmsUserMapper, UmsUser>
+@Slf4j
+@Transactional(rollbackFor = Exception.class)
+public class IUmsUserServiceImpl extends ServiceImpl<UmsUserMapper, UmsUser>
         implements IUmsUserService {
 
 
@@ -34,6 +37,7 @@ public class IUmsRegisterServiceImpl extends ServiceImpl<UmsUserMapper, UmsUser>
             ApiAsserts.fail("账号或邮箱已存在！");
         }
         System.out.println(registerData.getName() + registerData.getPass());
+
         UmsUser addedUser = UmsUser.builder()
                 .username(registerData.getName())
                 .alias(registerData.getName())
@@ -49,17 +53,23 @@ public class IUmsRegisterServiceImpl extends ServiceImpl<UmsUserMapper, UmsUser>
 
     @Override
     public String infoLogin(LoginData loginData) {
-        UmsUser loginUser = getUserByName(loginData.getUsername());
-        String enCodePwd = MD5Utils.getPwd(loginData.getPassword());
+
+
         String token = null;
-        if(!loginUser.getPassword().equals(enCodePwd)){
-            try {
+        try {
+            UmsUser user = getUserByName(loginData.getUsername());
+            String encodePwd = MD5Utils.getPwd(loginData.getPassword());
+            log.info("输入密码："+ encodePwd+"正确密码："+ user.getPassword());
+            if(!encodePwd.equals(user.getPassword()))
+            {
                 throw new Exception("密码错误");
-            } catch (Exception e) {
-                e.printStackTrace();
             }
+            token = JwtUtil.generateToken(user.getUsername());
+            log.warn(token);
+        } catch (Exception e) {
+            log.warn("用户不存在or密码验证失败=======>{}", loginData.getUsername());
         }
-        token = JwtUtil.generateToken(loginData.getUsername());
+        log.warn(token);
         return token;
     }
 

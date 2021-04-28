@@ -23,7 +23,7 @@ public class UmsUserController extends BaseController{
     private IUmsUserService umsUserService;
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
-    public ApiResult<Map<String,Object>> register(@Valid @RequestBody RegisterData registerData){
+    public ApiResult<Map<String,UmsUser>> register(@Valid @RequestBody RegisterData registerData){
         UmsUser addedUser = umsUserService.infoRegister(registerData);
 
         //这里返回类或者map都没关系，因为前端没有用到返回的对象
@@ -38,8 +38,12 @@ public class UmsUserController extends BaseController{
 
         Map<String,String> tokenMap = new HashMap<String,String>(16);
         tokenMap.put("token",token);
-        return  ApiResult.success(tokenMap,"登录成功");
-
+        if(token==null){
+            return ApiResult.failed("用户名或密码错误");
+        }
+        else{
+            return  ApiResult.success(tokenMap,"登录成功");
+        }
     }
 
 }

@@ -1,12 +1,12 @@
 package com.xuyifan.communityback.common.api;
 
-import com.xuyifan.communityback.model.entity.UmsUser;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-import java.util.Map;
 import java.util.Optional;
+
 
 @Data
 @NoArgsConstructor
@@ -49,10 +49,9 @@ public class ApiResult<T> implements Serializable {
      * 成功
      *
      * @param data 结果集
-     * @param userMap
      * @return {code:200,message:操作成功,data:自定义}
      */
-    public static <T> ApiResult<T> success(Map<String, UmsUser> userMap) {
+    public static <T> ApiResult<T> success() {
         return new ApiResult<T>(ApiErrorCode.SUCCESS.getCode(), ApiErrorCode.SUCCESS.getMessage(), null);
     }
 

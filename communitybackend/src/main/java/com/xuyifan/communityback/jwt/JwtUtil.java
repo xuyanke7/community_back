@@ -11,28 +11,26 @@ import java.util.*;
 
 public class JwtUtil {
     private static final Logger logger = LoggerFactory.getLogger(JwtUtil.class);
-    // 1000 hour
-    public static final long EXPIRATION_TIME = 3600_000_000L;
-    //please change to your own encryption secret
-    public static final String SECRET = "ThisIsASecret";
+    public static final long EXPIRATION_TIME = 3600_000_000L; // 1000 hour
+    public static final String SECRET = "ThisIsASecret";//please change to your own encryption secret.
     public static final String TOKEN_PREFIX = "Bearer ";
     public static final String HEADER_STRING = "Authorization";
     public static final String USER_NAME = "userName";
 
     public static String generateToken(String userId) {
-        HashMap<String, Object> map = new HashMap<>();
-        //you can put any data in the map
-        map.put(USER_NAME, userId);
-        String jwt = Jwts.builder()
-                .setClaims(map)
+        Map claims= new HashMap<>();
+        claims.put(USER_NAME,userId);
+
+        return Jwts.builder()
+                .setClaims(claims)
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(SignatureAlgorithm.HS512, SECRET)
+                //.compressWith(CompressionCodecs.DEFLATE)
                 .compact();
-        return jwt;
-        //jwt前面一般都会加Bearer
+        //jwt前面一般都会加Bearer*/
     }
 
-    /*public static HttpServletRequest validateTokenAndAddUserIdToHeader(HttpServletRequest request) {
+    public static HttpServletRequest validateTokenAndAddUserIdToHeader(HttpServletRequest request) {
         String token = request.getHeader(HEADER_STRING);
         if (token != null) {
             // parse the token.
@@ -74,5 +72,5 @@ public class JwtUtil {
         public TokenValidationException(String msg) {
             super(msg);
         }
-    }*/
+    }
 }
